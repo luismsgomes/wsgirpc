@@ -30,9 +30,9 @@ class Server(object):
         try:
             method, args, kwargs = self.get_method_args_kwargs(environ)
             result = getattr(instance, method)(*args, **kwargs)
-            response_data = pickle.dumps(result)
+            response_data = pickle.dumps((result, None))
         except BaseException as exception:
-            response_data = pickle.dumps(exception)
+            response_data = pickle.dumps((None, exception))
         self.instances.put(instance)
         start_response(
             "200 OK",
@@ -53,7 +53,10 @@ class Method(object):
         response = requests.post(
             self.addr, data=pickle.dumps([self.name, args, kwargs])
         )
-        return pickle.loads(response.content)
+        result, exception = pickle.loads(response.content)
+        if exception is not None:
+            raise exception
+        return result
 
 
 class Proxy(object):
