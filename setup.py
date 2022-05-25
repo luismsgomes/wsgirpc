@@ -15,7 +15,7 @@ setup(
     version="1.0.0",
     package_dir={"": "src"},
     py_modules=["wsgirpc"],
-    install_requires=["requests"],
+    install_requires=["requests", "tblib"],
     license='MIT',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[

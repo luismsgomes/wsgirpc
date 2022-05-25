@@ -1,6 +1,11 @@
+from tblib import pickling_support
+pickling_support.install()  # call before import pickle
+
 import pickle
 import queue
 import requests
+import sys
+import traceback
 
 
 __version__ = "1.0.0"
@@ -29,10 +34,14 @@ class Server(object):
         instance = self.instances.get()
         try:
             method, args, kwargs = self.get_method_args_kwargs(environ)
-            result = getattr(instance, method)(*args, **kwargs)
+            callable = getattr(instance, method)
+            result = callable(*args, **kwargs)
             response_data = pickle.dumps((result, None))
-        except BaseException as exception:
-            response_data = pickle.dumps((None, exception))
+        except BaseException:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            exc_traceback = exc_traceback.tb_next  # exclude the wsgirpc frame
+            traceback.print_exception(exc_type, exc_value, exc_traceback)
+            response_data = pickle.dumps((None, (exc_type, exc_value, exc_traceback)))
         self.instances.put(instance)
         start_response(
             "200 OK",
@@ -53,9 +62,10 @@ class Method(object):
         response = requests.post(
             self.addr, data=pickle.dumps([self.name, args, kwargs])
         )
-        result, exception = pickle.loads(response.content)
-        if exception is not None:
-            raise exception
+        result, exc_info = pickle.loads(response.content)
+        if exc_info is not None:
+            exc_type, exc_value, exc_traceback = exc_info
+            raise exc_type(exc_value).with_traceback(exc_traceback)
         return result
 
 

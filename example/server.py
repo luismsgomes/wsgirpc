@@ -5,6 +5,12 @@ class Reverser(object):
     def rev(self, line):
         return line[::-1]
 
+    def exc(self, depth):
+        if depth <= 0:
+            raise Exception("this is an example exception")
+        else:
+            self.exc(depth-1)
+
 
 app = wsgirpc.Server([Reverser()])
 
