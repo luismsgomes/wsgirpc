@@ -63,9 +63,13 @@ class Method(object):
             self.addr, data=pickle.dumps([self.name, args, kwargs])
         )
         result, exc_info = pickle.loads(response.content)
-        if exc_info is not None:
-            exc_type, exc_value, exc_traceback = exc_info
-            raise exc_type(exc_value).with_traceback(exc_traceback)
+        print(type(exc_info))
+        if exc_info:
+            if isinstance(exc_info, tuple):
+                exc_type, exc_value, exc_traceback = exc_info
+                raise exc_type(exc_value).with_traceback(exc_traceback)
+            else:  # fallback to communicate with v1 wsgirpc servers
+                raise exc_info
         return result
 
 
