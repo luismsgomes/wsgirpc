@@ -63,7 +63,6 @@ class Method(object):
             self.addr, data=pickle.dumps([self.name, args, kwargs])
         )
         result, exc_info = pickle.loads(response.content)
-        print(type(exc_info))
         if exc_info:
             if isinstance(exc_info, tuple):
                 exc_type, exc_value, exc_traceback = exc_info
