@@ -12,7 +12,7 @@ setup(
     url="https://github.com/luismsgomes/wsgirpc",
     author="Luís Gomes",
     author_email="luismsgomes@gmail.com",
-    version="2.1.0",
+    version="2.1.1",
     package_dir={"": "src"},
     py_modules=["wsgirpc"],
     install_requires=["requests", "tblib"],
